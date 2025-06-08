@@ -6,12 +6,14 @@ import {
   Text,
   View,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
-import { use } from "react";
 
 const App = () => {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [titleText, setTitleText] = useState("Belen");
 
   useEffect(() => {
     fetch("https://softecard.com/borrar.php?t=Articulo_Lista_Select&consulta=")
@@ -26,6 +28,18 @@ const App = () => {
         setLoading(false);
       });
   }, []);
+
+  const productosFiltrados = productos.filter((item) => {
+    const texto = search.toLowerCase();
+
+    return (
+      item.articulo.toLowerCase().includes(texto) ||
+      item.marca.toLowerCase().includes(texto) ||
+      item.precio.toString().includes(texto) ||
+      item.existencia.toString().includes(texto) ||
+      item.ubicacion.toLowerCase().includes(texto)
+    );
+  });
 
   const renderItem = ({ item }) => {
     return (
@@ -50,8 +64,21 @@ const App = () => {
 
   return (
     <View style={styles.container}>
+        {"\n"}
+      <Text style={styles.titleText}>
+        {titleText}
+        {"\n"}
+      </Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Buscar por nombre, marca o precio"
+        value={search}
+        onChangeText={setSearch}
+      />
+
       <FlatList
-        data={productos}
+        data={productosFiltrados}
         keyExtractor={(item) => item.id_articulo.toString()}
         renderItem={renderItem}
         contentContainerStyle={styles.lista}
@@ -93,6 +120,23 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  input: {
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginHorizontal: 16,
+    marginBottom: 12,
+  },
+
+  titleText: {
+    fontSize: 30,
+    fontWeight: "bold",
+    textAlign: "center",
+    color: "#EF6351",
   },
 });
 
